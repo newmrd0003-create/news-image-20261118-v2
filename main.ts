@@ -1,18 +1,15 @@
-// news-image-20261118 — copy entry.png to the make.fun output directory.
-// Node 22 stdlib only. No network. Deterministic: byte-identical copy.
-// Override the destination with MAKEFUN_OUTPUT_DIR (default: /output).
-import { copyFileSync, existsSync, mkdirSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+// news-image-20261118 -- copy the generated front page to the output dir.
+// Node 22 stdlib only. No network. The image is produced by gen_image.py;
+// this script only copies entry.png to /output/entry.png (or to the
+// directory named by MAKEFUN_OUTPUT_DIR when that variable is set).
+// Run: node main.ts  (after: python3 gen_image.py)
+
+import { copyFileSync, mkdirSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const src = join(here, "entry.png");
-const outDir = resolve(process.env.MAKEFUN_OUTPUT_DIR ?? "/output");
-if (!existsSync(src)) {
-  console.error(`entry.png not found next to main.ts: ${src}`);
-  process.exit(1);
-}
+const source = join(here, "entry.png");
+const outDir = process.env.MAKEFUN_OUTPUT_DIR || "/output";
 mkdirSync(outDir, { recursive: true });
-const dest = join(outDir, "entry.png");
-copyFileSync(src, dest);
-console.log(`copied entry.png -> ${dest}`);
+copyFileSync(source, join(outDir, "entry.png"));
